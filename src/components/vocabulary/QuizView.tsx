@@ -105,16 +105,20 @@ export function QuizView({ words }: { words: Word[] }) {
             }}
             className="flex w-full max-w-[440px] gap-2.5"
           >
+            {/* `min-w-0` is load-bearing: an input's intrinsic width is about
+                20 characters, and a flex item defaults to `min-width: auto`,
+                so without it the input refuses to shrink on a narrow screen
+                and pushes the button off the right edge. */}
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="napiš překlad…"
               aria-label="Tvoje odpověď"
-              className="flex-1 rounded-xl border-[1.5px] border-slov-border bg-slov-bg px-4 py-3 text-base outline-none focus:border-slov-teal"
+              className="w-full min-w-0 flex-1 rounded-xl border-[1.5px] border-slov-border bg-slov-bg px-4 py-3 text-base outline-none focus:border-slov-teal"
             />
             <button
               type="submit"
-              className="rounded-xl bg-slov-teal px-[22px] py-3 text-[15px] font-bold text-slov-bg transition-colors hover:bg-slov-teal-dark"
+              className="shrink-0 rounded-xl bg-slov-teal px-[22px] py-3 text-[15px] font-bold text-slov-bg transition-colors hover:bg-slov-teal-dark"
             >
               {answer ? "Další" : "Ověřit"}
             </button>

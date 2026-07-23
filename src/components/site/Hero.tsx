@@ -38,7 +38,7 @@ export function Hero() {
             href="#o-mne"
             className="border-b-[1.5px] border-rule pb-1 text-sm font-medium tracking-[0.08em] text-ink uppercase transition-colors hover:border-sage-dark hover:text-sage-dark"
           >
-            Poznat mě blíž
+            Více o mně
           </a>
         </div>
       </div>
