@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- Portfolio palette (cream / sage / ink) --- */
+  --color-cream: #f6f3ee;
+  --color-paper: #ffffff;
+  --color-ink: #33302b;
+  --color-muted: #6b6355;
+  --color-sand: #a39a8b;
+  --color-line: #e5dfd4;
+  --color-line-strong: #d9d1c2;
+  --color-rule: #c8bfae;
+  --color-hairline: #efeae0;
+  --color-ghost: #ede7db;
+  --color-ghost-warm: #f4f1ea;
+  --color-sage: #7a9e8e;
+  --color-sage-dark: #5c8272;
+  --color-sage-deep: #3f5c50;
+  --color-sage-mid: #9dbbad;
+  --color-sage-soft: #e3ede8;
+  --color-bronze: #b08a63;
+  --color-clay: #b0745c;
+  --color-dune: #b5af9f;
+
+  /* --- Slovníček palette (its own identity, per the mockup) --- */
+  --color-slov-bg: #fbf8f4;
+  --color-slov-ink: #2b2622;
+  --color-slov-teal: #3e7c8a;
+  --color-slov-teal-dark: #2c5e6a;
+  --color-slov-teal-pale: #c6dbe0;
+  --color-slov-line: #efe9e0;
+  --color-slov-border: #dcd4c9;
+  --color-slov-muted: #8a8378;
+  --color-slov-ink-soft: #5a544d;
+  --color-slov-mist: #e9f2f2;
+  --color-slov-mist-dark: #d9eaea;
+  --color-slov-clay-soft: #f7ece3;
+  --color-slov-clay-dark: #f0decc;
+  --color-slov-rust: #a85b3c;
+  --color-slov-hint: #b0a99d;
+  --color-slov-flip-hint: #a8cdd4;
+
+  /* --- Type --- */
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  /* Real values are attached by `.vocabulary-type` below — see the note there. */
+  --font-slov-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-slov-display: ui-serif, Georgia, serif;
+}
+
+/**
+ * Lora and Manrope are loaded by the /vocabulary layout, so `--font-lora` and
+ * `--font-manrope` only exist on that subtree — not on :root, where @theme
+ * resolves. Re-declaring the two theme vars here, on the element that owns the
+ * font variables, is what makes them resolve.
+ */
+.vocabulary-type {
+  --font-slov-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-slov-display: var(--font-lora), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Offset anchor targets so the sticky nav never covers a heading. */
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
+  /**
+   * Tailwind v4's Preflight dropped the `cursor: pointer` that v3 gave buttons,
+   * leaving them on the browser default of `cursor: default` — which reads as
+   * "not clickable". Put it back once, here, rather than on every button.
+   * Disabled ones keep whatever their own utilities say.
+   */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--color-sage-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    /* Parallax layers are positioned by JS; freeze them flat. */
+    [data-plx] {
+      transform: none !important;
+    }
+  }
+}
+
+/**
+ * Countdown on the quiz's "next question" button. Fills the button from the
+ * left, reaching full width as the auto-advance fires; the duration is set
+ * from the component so the bar and the timer share one number.
+ */
+@keyframes quiz-countdown {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Small caps label used above every section heading. */
+@utility eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}

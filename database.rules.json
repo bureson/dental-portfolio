@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "vocabulary": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$wordId": {
+        ".validate": "$wordId.matches(/^w[0-9]+$/) && newData.hasChildren(['front', 'back'])",
+        "front": { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "back": { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
