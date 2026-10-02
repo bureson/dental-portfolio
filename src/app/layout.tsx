@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { AuthProvider } from "@/lib/auth";
-import { contact, nameAt, person } from "@/lib/content";
+import { contact, person, personName, siteUrl } from "@/lib/content";
 import "./globals.css";
 
-/**
- * The name for the title, OG and structured data. Metadata is emitted at build
- * time and cannot re-render in the browser, so unlike the name on the page
- * itself this one only catches up with the surname change on the next deploy.
- */
-const fullName = `${person.title} ${nameAt(Date.now())}`;
+/** The name for the title and OG. */
+const fullName = `${person.title} ${personName}`;
+const title = `${fullName} — zubní lékařka v Liberci`;
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -26,9 +23,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: `${fullName} — zubní lékařka`,
-  description:
-    "Zubní lékařka v Liberci. Preventivní a estetická stomatologie s důrazem na klidný, srozumitelný přístup k pacientům.",
+  // Lets every URL below be written relative to the canonical address.
+  metadataBase: new URL(siteUrl),
+  title: { default: title, template: `%s — ${fullName}` },
+  description: `${fullName}, zubní lékařka na klinice ${contact.clinic} v Liberci. Preventivní, záchovná a estetická stomatologie s klidným přístupem. Přijímáme nové pacienty.`,
   keywords: [
     "zubní lékařka",
     "stomatologie Liberec",
@@ -39,10 +37,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "profile",
     locale: "cs_CZ",
-    title: `${fullName} — zubní lékařka`,
+    url: "/",
+    title,
     description:
       "Péče o úsměv, která uklidní. Preventivní a estetická stomatologie v Liberci.",
     siteName: fullName,
+    firstName: person.firstName,
+    lastName: person.lastName,
   },
 };
 
@@ -54,33 +55,13 @@ export default function RootLayout({
   return (
     <html
       lang="cs"
+      // globals.css sets `scroll-behavior: smooth` for the in-page anchors;
+      // this tells Next.js to switch it off while it navigates between pages.
+      data-scroll-behavior="smooth"
       className={`${cormorant.variable} ${outfit.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <AuthProvider>{children}</AuthProvider>
-        <script
-          type="application/ld+json"
-          // Structured data lets search engines surface the ordination directly.
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Dentist",
-              name: fullName,
-              description:
-                "Zubní lékařka se zaměřením na záchovnou a estetickou stomatologii.",
-              telephone: contact.phone,
-              email: contact.email,
-              address: {
-                "@type": "PostalAddress",
-                streetAddress: contact.street,
-                postalCode: contact.postalCode,
-                addressLocality: contact.city,
-                addressCountry: "CZ",
-              },
-              openingHours: ["Mo-Fr 07:30-15:00"],
-            }),
-          }}
-        />
       </body>
     </html>
   );

@@ -51,25 +51,35 @@ export const photos = {
 
 While a path is `null`, a labelled placeholder is rendered in its place.
 
+### Search engines
+
+`siteUrl` in `src/lib/content.ts` is the address the canonical link,
+`sitemap.xml`, `robots.txt` and link previews are built on — change it there if
+the domain ever changes. `src/app/robots.ts` and `src/app/sitemap.ts` generate
+the two files at build time, and `StructuredData` puts the schema.org
+description of the practice on the home page.
+
+`src/app/opengraph-image.png` is the 1200 × 630 card shown when the link is
+shared. It is a plain image, not generated — replace the file to change it.
+
 ## Signing in
 
-The ✳ in the footer leads to `/login` — a login page offering two ways in
-through Firebase Authentication:
-
-- a Google account (`signInWithPopup` + `GoogleAuthProvider`),
-- email and password (`signInWithEmailAndPassword`).
+The ✳ in the footer leads to `/login` — a login page with a single way in
+through Firebase Authentication: a Google account (`signInWithPopup` +
+`GoogleAuthProvider`).
 
 After signing in, the visitor continues to `/vocabulary`.
 
 ### Setup
 
-1. In the Firebase console enable both **Email/Password** and **Google** under
-   **Authentication → Sign-in method**, and create the database under
-   **Build → Realtime Database**.
-2. Under **Users**, create an account for password sign-in — the site offers no
-   registration. Google, by contrast, creates an account on first sign-in, so
-   restrict who is allowed in (via authorized domains, or by deleting unwanted
-   accounts).
+1. In the Firebase console enable **Google** under **Authentication → Sign-in
+   method** and keep **Email/Password** disabled — the site no longer offers
+   it, but while the provider is on, a password account can still sign in by
+   calling Firebase directly. Create the database under **Build → Realtime
+   Database**.
+2. Google creates an account on first sign-in, so restrict who is allowed in
+   (via the database rules below, or by deleting unwanted accounts under
+   **Users**).
 3. Copy `.env.example` to `.env.local` and fill in the values from
    **Project settings → General → Your apps**:
 
@@ -133,10 +143,9 @@ visitor, and validate the shape of what gets written. Without them the database
 would be readable by anyone at all.
 
 Because the list is shared, **anyone able to sign in can edit or delete every
-word.** With Google enabled as a provider that means any Google account, since
+word.** With Google as the provider that means any Google account, since
 Google creates the account on first sign-in. To keep it to a known set of
-people, either turn Google off and hand out password accounts, or pin the rules
-to specific uids:
+people, pin the rules to specific uids:
 
 ```json
 ".write": "auth != null && (auth.uid === 'uid-one' || auth.uid === 'uid-two')"

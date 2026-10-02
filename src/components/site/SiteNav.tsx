@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { PersonName } from "@/components/site/PersonName";
-import { navigation, person } from "@/lib/content";
+import { navigation, person, personName } from "@/lib/content";
 
-/** `name` is the build-time value; `PersonName` keeps it honest thereafter. */
-export function SiteNav({ name }: { name: string }) {
+export function SiteNav() {
   const { loggedIn } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -19,7 +17,7 @@ export function SiteNav({ name }: { name: string }) {
       <div className="mx-auto flex max-w-[1140px] items-center justify-between px-6 py-4 md:px-9 md:py-[22px]">
         <Link href="/" className="flex items-baseline gap-3 text-ink">
           <span className="font-display text-2xl font-semibold tracking-[0.02em]">
-            <PersonName initial={name} />
+            {personName}
           </span>
           <span className="text-xs font-medium tracking-[0.18em] text-sand uppercase">
             {person.title}

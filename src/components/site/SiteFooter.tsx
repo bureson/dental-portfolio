@@ -2,27 +2,20 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
-import { PersonName } from "@/components/site/PersonName";
-import { person } from "@/lib/content";
+import { person, personName } from "@/lib/content";
 
 /**
  * The ✳ in the corner leads to the login page; once signed in it turns into a
  * way back out.
  */
-export function SiteFooter({
-  year,
-  name,
-}: {
-  year: number;
-  name: string;
-}) {
+export function SiteFooter({ year }: { year: number }) {
   const { ready, loggedIn, logout } = useAuth();
 
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-[1140px] flex-col items-center justify-between gap-4 px-6 py-7 text-[13px] text-sand sm:flex-row md:px-9">
         <p className="m-0">
-          © {year} {person.title} <PersonName initial={name} />
+          © {year} {person.title} {personName}
         </p>
 
         {/* `ready` guards against a flash of the wrong control on load. */}

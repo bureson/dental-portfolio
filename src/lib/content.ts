@@ -5,25 +5,22 @@
 
 export const person = {
   firstName: "Irena",
+  lastName: "Burešová",
   title: "MUDr.",
   role: "Zubní lékařka — Liberec",
   initial: "I",
 } as const;
 
-/**
- * The moment the surname changes.
- *
- * 26 September 2026 at 13:00 Prague time. Central Europe is still on summer
- * time (UTC+2) until the last Sunday of October, so that is 11:00 UTC — an
- * absolute instant, immune to whatever timezone the visitor is in.
- */
-export const SURNAME_CHANGES_AT = Date.UTC(2026, 8, 26, 11, 0);
+/** The full name, without the title. */
+export const personName = `${person.firstName} ${person.lastName}`;
 
-/** The full name as of a given instant. */
-export function nameAt(now: number): string {
-  const surname = now >= SURNAME_CHANGES_AT ? "Burešová" : "Mouleová";
-  return `${person.firstName} ${surname}`;
-}
+/**
+ * The address search engines should treat as the real one, without a trailing
+ * slash. The canonical link, sitemap, robots.txt and link previews are all
+ * built on it — Firebase also serves the site from its `web.app` domain, and
+ * this is what tells crawlers which of the two to index.
+ */
+export const siteUrl = "https://www.irenaburesova.cz";
 
 /**
  * Photographs. Drop the files into `public/` and fill in the paths — until
@@ -118,6 +115,9 @@ export const contact = {
   street: "Ampérova 649",
   postalCode: "463 12",
   city: "Liberec",
+  /** Where the clinic sits on the map — only search engines read this. */
+  latitude: 50.7382144,
+  longitude: 15.0271822,
   phone: "+420 733 734 794",
   email: "info@dolident.cz",
 } as const;

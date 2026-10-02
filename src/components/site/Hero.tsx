@@ -1,8 +1,5 @@
 import { ImageSlot } from "@/components/ImageSlot";
-import { nameAt, person, photos } from "@/lib/content";
-
-/** Build time — alt text is baked into the HTML and never re-renders. */
-const BUILT_AT = Date.now();
+import { person, personName, photos } from "@/lib/content";
 
 export function Hero() {
   return (
@@ -55,7 +52,7 @@ export function Hero() {
         >
           <ImageSlot
             src={photos.portrait}
-            alt={`Portrét — ${person.title} ${nameAt(BUILT_AT)}`}
+            alt={`Portrét — ${person.title} ${personName}`}
             placeholder="Portrét"
             priority
           />

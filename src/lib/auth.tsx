@@ -5,7 +5,6 @@ import {
   type Auth,
   GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   type User,
@@ -23,9 +22,9 @@ import { firebaseConfigured, getAuthClient } from "@/lib/firebase";
 /**
  * Sign-in for the private part of the site, via Firebase Authentication.
  *
- * Accounts are created in the Firebase console (Authentication → Users) — the
- * site offers no registration. The Firebase SDK keeps the session in
- * localStorage, so a sign-in survives closing the tab.
+ * A Google account is the only way in; Firebase creates the user on first
+ * sign-in. The Firebase SDK keeps the session in localStorage, so a sign-in
+ * survives closing the tab.
  */
 
 /** `error: null` means the visitor cancelled — nothing worth reporting. */
@@ -33,11 +32,6 @@ export type LoginResult = { ok: true } | { ok: false; error: string | null };
 
 /** Firebase codes translated into messages that mean something to a visitor. */
 const ERRORS: Record<string, string> = {
-  "auth/invalid-email": "Zadejte platnou e-mailovou adresu.",
-  "auth/missing-password": "Zadejte heslo.",
-  "auth/invalid-credential": "Nesprávný e-mail nebo heslo.",
-  "auth/wrong-password": "Nesprávný e-mail nebo heslo.",
-  "auth/user-not-found": "Nesprávný e-mail nebo heslo.",
   "auth/user-disabled": "Tento účet je zablokovaný.",
   "auth/too-many-requests":
     "Příliš mnoho pokusů. Zkuste to prosím za chvíli znovu.",
@@ -45,8 +39,6 @@ const ERRORS: Record<string, string> = {
     "Nepodařilo se spojit se serverem. Zkontrolujte připojení.",
   "auth/popup-blocked":
     "Prohlížeč zablokoval přihlašovací okno. Povolte pro tento web vyskakovací okna a zkuste to znovu.",
-  "auth/account-exists-with-different-credential":
-    "K tomuto e-mailu už existuje účet s heslem. Přihlaste se e-mailem a heslem.",
   "auth/operation-not-allowed":
     "Přihlášení přes Google není u tohoto projektu povolené.",
   "auth/unauthorized-domain":
@@ -68,7 +60,6 @@ type AuthValue = {
   loggedIn: boolean;
   /** Email of the signed-in user, otherwise null. */
   email: string | null;
-  login: (email: string, password: string) => Promise<LoginResult>;
   /** Sign in with a Google account, in a popup window. */
   loginWithGoogle: () => Promise<LoginResult>;
   logout: () => Promise<void>;
@@ -77,8 +68,8 @@ type AuthValue = {
 const AuthContext = createContext<AuthValue | null>(null);
 
 /**
- * Shared wrapper for both sign-in methods: gets the client, runs the given
- * action and translates any Firebase error into a message.
+ * Gets the client, runs the given sign-in action and translates any Firebase
+ * error into a message.
  */
 async function attemptLogin(
   action: (auth: Auth) => Promise<unknown>,
@@ -118,14 +109,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const login = useCallback(
-    (email: string, password: string) =>
-      attemptLogin((auth) =>
-        signInWithEmailAndPassword(auth, email.trim(), password),
-      ),
-    [],
-  );
-
   const loginWithGoogle = useCallback(
     () =>
       attemptLogin((auth) => {
@@ -148,11 +131,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ready,
       loggedIn: user !== null,
       email: user?.email ?? null,
-      login,
       loginWithGoogle,
       logout,
     }),
-    [ready, user, login, loginWithGoogle, logout],
+    [ready, user, loginWithGoogle, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

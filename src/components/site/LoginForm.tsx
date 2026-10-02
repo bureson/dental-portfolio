@@ -11,47 +11,28 @@ const AFTER_LOGIN = "/vocabulary";
 
 export function LoginForm() {
   const router = useRouter();
-  const { ready, loggedIn, login, loginWithGoogle } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const { ready, loggedIn, loginWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  /** Which method is running — keeps both buttons locked at once. */
-  const [pending, setPending] = useState<"password" | "google" | null>(null);
+  const [pending, setPending] = useState(false);
 
   // No point letting a signed-in visitor sit here — and after a successful
-  // submit this is what runs once Firebase reports the state change.
+  // sign-in this is what runs once Firebase reports the state change.
   useEffect(() => {
     if (ready && loggedIn) router.replace(AFTER_LOGIN);
   }, [ready, loggedIn, router]);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pending) return;
-    setPending("password");
-    setError(null);
-    const result = await login(email, password);
-    if (result.ok) {
-      router.replace(AFTER_LOGIN);
-      return; // Leave the buttons locked until the page goes away.
-    }
-    setError(result.error);
-    setPassword("");
-    setPending(null);
-  };
-
   const signInWithGoogle = async () => {
     if (pending) return;
-    setPending("google");
+    setPending(true);
     setError(null);
     const result = await loginWithGoogle();
     if (result.ok) {
       router.replace(AFTER_LOGIN);
-      return;
+      return; // Leave the button locked until the page goes away.
     }
     // `error: null` = the visitor closed the popup; just settle back down.
     setError(result.error);
-    setPending(null);
+    setPending(false);
   };
 
   return (
@@ -81,97 +62,28 @@ export function LoginForm() {
               Vítejte zpět
             </h1>
             <p className="m-0 text-[14.5px] leading-[1.6] font-light text-muted">
-              Přihlaste se účtem Google, nebo e-mailem a heslem.
+              Přihlaste se svým účtem Google.
             </p>
           </div>
 
           <button
             type="button"
             onClick={signInWithGoogle}
-            disabled={pending !== null}
+            disabled={pending}
             className="flex items-center justify-center gap-3 border border-line-strong bg-paper px-6 py-[13px] text-sm font-medium text-ink transition-colors hover:border-sage-dark hover:text-sage-dark disabled:cursor-not-allowed disabled:border-line disabled:text-sand"
           >
             <GoogleLogo />
-            {pending === "google" ? "Otevírám Google…" : "Pokračovat přes Google"}
+            {pending ? "Otevírám Google…" : "Pokračovat přes Google"}
           </button>
 
-          {/* Separator between the two methods. */}
-          <div aria-hidden="true" className="flex items-center gap-4">
-            <span className="h-px flex-1 bg-line" />
-            <span className="text-[11.5px] font-medium tracking-[0.16em] text-sand uppercase">
-              nebo
-            </span>
-            <span className="h-px flex-1 bg-line" />
-          </div>
-
-          <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-            <Field label="E-mail" htmlFor="email">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                autoFocus
-                required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError(null);
-                }}
-                aria-invalid={error !== null}
-                placeholder="vas@email.cz"
-                className="w-full border border-line-strong bg-cream/40 px-4 py-3 text-[15px] text-ink outline-none transition-colors placeholder:text-sand/80 focus:border-sage-dark focus:bg-paper"
-              />
-            </Field>
-
-            <Field
-              label="Heslo"
-              htmlFor="password"
-              action={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="text-[11.5px] font-medium tracking-[0.08em] text-sand uppercase transition-colors hover:text-sage-dark"
-                >
-                  {showPassword ? "Skrýt" : "Zobrazit"}
-                </button>
-              }
+          {error && (
+            <p
+              role="alert"
+              className="m-0 border-l-2 border-clay bg-clay/[0.07] px-4 py-3 text-[13.5px] leading-[1.5] text-clay"
             >
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError(null);
-                }}
-                aria-invalid={error !== null}
-                placeholder="••••••••"
-                className="w-full border border-line-strong bg-cream/40 px-4 py-3 text-[15px] text-ink outline-none transition-colors placeholder:text-sand/80 focus:border-sage-dark focus:bg-paper"
-              />
-            </Field>
-
-            {error && (
-              <p
-                role="alert"
-                className="m-0 border-l-2 border-clay bg-clay/[0.07] px-4 py-3 text-[13.5px] leading-[1.5] text-clay"
-              >
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={pending !== null}
-              className="mt-1 bg-ink px-8 py-[15px] text-sm font-medium tracking-[0.08em] text-cream uppercase transition-colors hover:bg-sage-dark disabled:cursor-not-allowed disabled:bg-sand"
-            >
-              {pending === "password" ? "Přihlašuji…" : "Přihlásit se"}
-            </button>
-          </form>
+              {error}
+            </p>
+          )}
 
           <Link
             href="/"
@@ -209,33 +121,5 @@ function GoogleLogo() {
         d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
       />
     </svg>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  action,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  /** Optional control to the right of the label (the password toggle). */
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-4">
-        <label
-          htmlFor={htmlFor}
-          className="text-[12.5px] font-semibold tracking-[0.1em] text-sand uppercase"
-        >
-          {label}
-        </label>
-        {action}
-      </div>
-      {children}
-    </div>
   );
 }
